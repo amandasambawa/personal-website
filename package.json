@@ -1,0 +1,12 @@
+{
+  "name": "amanda-sambawa-website",
+  "version": "1.0.0",
+  "description": "Amanda Sambawa personal website",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

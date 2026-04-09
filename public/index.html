@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Name — Frontend Developer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* ===== RESET & VARIABLES ===== */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --accent:        #b85c72;
+            --accent-light:  #fdf2f4;
+            --accent-border: #ecc5ce;
+            --bg:            #ffffff;
+            --bg-alt:        #f9fafb;
+            --border:        #e5e7eb;
+            --text:          #111827;
+            --text-muted:    #6b7280;
+            --card:          #ffffff;
+            --shadow:        rgba(0,0,0,0.06);
+            --shadow-md:     rgba(0,0,0,0.1);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* ===== SCROLL PROGRESS ===== */
+        #progress-bar {
+            position: fixed;
+            top: 0; left: 0;
+            height: 2px;
+            width: 0%;
+            background: var(--accent);
+            z-index: 2000;
+            transition: width 0.1s linear;
+        }
+
+        /* ===== NAV ===== */
+        nav {
+            position: fixed; top: 0; width: 100%;
+            z-index: 1000;
+            padding: 1.1rem 3rem;
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            transition: padding 0.3s, box-shadow 0.3s;
+        }
+
+        nav.scrolled {
+            padding: 0.7rem 3rem;
+            box-shadow: 0 1px 16px var(--shadow);
+        }
+
+        .nav-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            color: var(--text);
+            text-decoration: none;
+            letter-spacing: 0.01em;
+        }
+
+        .nav-links { list-style: none; display: flex; gap: 2.5rem; }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 500;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            position: relative;
+            transition: color 0.2s;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px; left: 0;
+            width: 0; height: 1.5px;
+            background: var(--accent);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover { color: var(--text); }
+        .nav-links a:hover::after { width: 100%; }
+
+        .nav-mobile-toggle {
+            display: none;
+            background: none; border: none;
+            cursor: pointer;
+            font-size: 1.4rem;
+            color: var(--text);
+        }
+
+        /* ===== SCROLL REVEAL ===== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(28px);
+            transition: opacity 0.75s ease, transform 0.75s ease;
+        }
+
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        /* ===== SHARED SECTION STYLES ===== */
+        section { position: relative; z-index: 1; }
+
+        .section-label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 0.7rem;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 4.5vw, 3rem);
+            line-height: 1.2;
+            color: var(--text);
+            margin-bottom: 1.4rem;
+        }
+
+        .section-title em { color: var(--accent); font-style: italic; }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.85rem 2.2rem;
+            border-radius: 999px;
+            font-weight: 600; font-size: 0.9rem;
+            text-decoration: none;
+            transition: all 0.25s;
+            cursor: pointer; border: none;
+        }
+
+        .btn-primary {
+            background: var(--text);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1f2937;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px var(--shadow-md);
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--text);
+            border: 1.5px solid var(--border);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-light);
+            transform: translateY(-2px);
+        }
+
+        /* ===== HERO ===== */
+        #hero {
+            min-height: 100vh;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            text-align: center;
+            padding: 9rem 2rem 5rem;
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            background: var(--accent-light);
+            color: var(--accent);
+            padding: 0.4rem 1.1rem;
+            border-radius: 999px;
+            font-size: 0.72rem; font-weight: 600;
+            letter-spacing: 0.12em; text-transform: uppercase;
+            margin-bottom: 2rem;
+            animation: fadeInDown 0.7s ease both;
+            border: 1px solid var(--accent-border);
+        }
+
+        .hero-name {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3rem, 9vw, 6.5rem);
+            line-height: 1.05;
+            margin-bottom: 0.6rem;
+            animation: fadeInUp 0.8s ease 0.15s both;
+            color: var(--text);
+        }
+
+        .hero-name .highlight { color: var(--accent); font-style: italic; }
+
+        .hero-subtitle {
+            font-size: clamp(0.95rem, 2vw, 1.2rem);
+            color: var(--text-muted);
+            font-weight: 400;
+            letter-spacing: 0.06em;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.8s ease 0.3s both;
+        }
+
+        .hero-desc {
+            max-width: 500px;
+            font-size: 1rem;
+            color: var(--text-muted);
+            line-height: 1.8;
+            margin-bottom: 3rem;
+            animation: fadeInUp 0.8s ease 0.45s both;
+        }
+
+        .hero-cta {
+            display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+            margin-bottom: 5rem;
+            animation: fadeInUp 0.8s ease 0.6s both;
+        }
+
+        /* Hero companions */
+        .hero-companions {
+            display: flex; gap: 3rem; align-items: flex-end;
+            animation: fadeInUp 0.8s ease 0.8s both;
+        }
+
+        .companion { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+
+        .companion img {
+            width: 72px; height: 72px;
+            filter: drop-shadow(0 4px 10px rgba(0,0,0,0.1));
+            animation: float 3.5s ease-in-out infinite;
+            transition: opacity 0.4s;
+            opacity: 0.85;
+        }
+
+        .companion:hover img { opacity: 1; }
+        .companion:nth-child(2) img { animation-delay: 1.75s; }
+
+        .companion-name {
+            font-size: 0.68rem; font-weight: 500;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50%       { transform: translateY(-10px); }
+        }
+
+        /* ===== ABOUT ===== */
+        #about {
+            padding: 7rem 2rem;
+            background: var(--bg-alt);
+        }
+
+        .about-inner {
+            max-width: 1100px; margin: 0 auto;
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 5rem; align-items: center;
+        }
+
+        .about-text p {
+            color: var(--text-muted);
+            line-height: 1.9;
+            margin-bottom: 1.3rem;
+            font-size: 1rem;
+        }
+
+        .about-cards {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+        }
+
+        .about-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.6rem; text-align: center;
+            transition: all 0.25s;
+        }
+
+        .about-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px var(--shadow);
+            border-color: var(--accent-border);
+        }
+
+        .about-card .icon { font-size: 1.8rem; display: block; margin-bottom: 0.7rem; }
+
+        .about-card h3 {
+            font-size: 0.82rem; font-weight: 700;
+            color: var(--text); letter-spacing: 0.04em;
+            margin-bottom: 0.4rem;
+            text-transform: uppercase;
+        }
+
+        .about-card p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.55; }
+
+        /* ===== SKILLS ===== */
+        #skills {
+            padding: 7rem 2rem;
+            background: var(--bg);
+        }
+
+        .skills-inner { max-width: 860px; margin: 0 auto; text-align: center; }
+
+        .skills-subtitle {
+            color: var(--text-muted); font-size: 1rem; line-height: 1.75;
+            max-width: 460px; margin: 0 auto;
+        }
+
+        .skills-grid {
+            display: flex; flex-wrap: wrap; gap: 0.75rem;
+            justify-content: center; margin-top: 3rem;
+        }
+
+        .skill-badge {
+            background: var(--bg-alt);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.55rem 1.2rem;
+            font-size: 0.82rem; font-weight: 500;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+
+        .skill-badge:hover {
+            background: var(--text);
+            color: white; border-color: var(--text);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow-md);
+        }
+
+        .skill-badge.featured {
+            background: var(--text);
+            color: white;
+            border-color: var(--text);
+        }
+
+        .skill-badge.featured:hover {
+            background: #1f2937;
+            border-color: #1f2937;
+        }
+
+        /* ===== TRAVEL ===== */
+        #travel {
+            padding: 7rem 2rem;
+            background: var(--bg-alt);
+        }
+
+        .travel-inner { max-width: 1100px; margin: 0 auto; text-align: center; }
+
+        .travel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem; margin-top: 3rem;
+        }
+
+        .travel-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem; text-align: left;
+            transition: all 0.25s;
+        }
+
+        .travel-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 28px var(--shadow);
+            border-color: var(--accent-border);
+        }
+
+        .travel-flag { font-size: 2.8rem; display: block; margin-bottom: 1rem; }
+
+        .travel-location {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem; color: var(--text); margin-bottom: 0.25rem;
+        }
+
+        .travel-country {
+            font-size: 0.72rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.14em;
+            color: var(--accent); margin-bottom: 0.8rem;
+        }
+
+        .travel-note { font-size: 0.85rem; color: var(--text-muted); line-height: 1.65; }
+
+        /* ===== CONTACT ===== */
+        #contact {
+            padding: 7rem 2rem;
+            background: var(--bg);
+            text-align: center;
+        }
+
+        .contact-inner { max-width: 560px; margin: 0 auto; }
+
+        .contact-inner .contact-body {
+            color: var(--text-muted);
+            line-height: 1.85; margin-bottom: 2.5rem;
+            font-size: 1rem;
+        }
+
+        .social-links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+        .social-link {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.7rem 1.5rem;
+            border-radius: 8px;
+            background: var(--bg-alt);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem; font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .social-link:hover {
+            background: var(--text);
+            color: white; border-color: var(--text);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px var(--shadow-md);
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            padding: 2rem; text-align: center;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            background: var(--bg-alt);
+        }
+
+        footer .heart { color: var(--accent); }
+
+        /* ===== KEYFRAMES ===== */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(26px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-26px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 900px) {
+            .about-inner { grid-template-columns: 1fr; gap: 3rem; }
+        }
+
+        @media (max-width: 640px) {
+            nav { padding: 1rem 1.5rem; }
+            .nav-links { display: none; }
+            .nav-links.open {
+                display: flex; flex-direction: column;
+                position: absolute; top: 100%; left: 0; right: 0;
+                background: rgba(255,255,255,0.98);
+                padding: 1.5rem 2rem;
+                border-bottom: 1px solid var(--border);
+                gap: 1.2rem;
+            }
+            .nav-mobile-toggle { display: block; }
+            .hero-companions { gap: 2rem; }
+            .companion img { width: 80px; height: 80px; }
+
+        }
+    </style>
+</head>
+<body>
+
+<!-- Scroll progress -->
+<div id="progress-bar"></div>
+
+<!-- ===== NAV ===== -->
+<nav id="nav">
+    <a href="#" class="nav-logo">amanda.sambawa</a>
+    <ul class="nav-links" id="nav-links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#skills">Skills</a></li>
+
+        <li><a href="#travel">Travel</a></li>
+        <li><a href="#contact">Contact</a></li>
+    </ul>
+    <button class="nav-mobile-toggle" id="nav-toggle" aria-label="Toggle menu">☰</button>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section id="hero">
+    <h1 class="hero-name">Hi, I'm <span class="highlight">Amanda Sambawa</span></h1>
+    <p class="hero-subtitle">Software Engineer &nbsp;·&nbsp; World Traveler</p>
+
+    <div class="hero-cta">
+        <a href="#contact" class="btn btn-primary">✉&nbsp; Say Hello</a>
+    </div>
+</section>
+
+<!-- ===== ABOUT ===== -->
+<section id="about">
+    <div class="about-inner">
+        <div class="about-text reveal">
+            <p class="section-label">About Me</p>
+            <h2 class="section-title">Nice to meet <em>you</em></h2>
+            <p>I'm Amanda, a software engineer with a focus on frontend development. I enjoy building clean, intuitive experiences that are as thoughtful under the hood as they look on the surface.</p>
+            <p>Outside of work, I love to travel and am always looking for the next place to explore.</p>
+            <div class="hero-companions" style="justify-content: flex-start; margin-top: 2rem;">
+                <div class="companion">
+                    <img id="hero-fidough" src="" alt="Fidough" />
+                    <span class="companion-name">Fidough</span>
+                </div>
+                <div class="companion">
+                    <img id="hero-ponyta" src="" alt="Ponyta" />
+                    <span class="companion-name">Ponyta</span>
+                </div>
+            </div>
+        </div>
+        <div class="about-cards reveal" style="transition-delay: 0.2s">
+            <div class="about-card">
+                <span class="icon">💻</span>
+                <h3>Software Dev</h3>
+                <p>Building clean, reliable software that users actually love</p>
+            </div>
+            <div class="about-card">
+                <span class="icon">✈️</span>
+                <h3>World Traveler</h3>
+                <p>Always planning the next adventure somewhere new</p>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ===== SKILLS ===== -->
+<section id="skills">
+    <div class="skills-inner">
+        <p class="section-label reveal">Toolkit</p>
+        <h2 class="section-title reveal">Technologies I love</h2>
+        <p class="skills-subtitle reveal">
+            From concept to deployment — the tools and technologies I reach for every day.
+        </p>
+        <div class="skills-grid reveal">
+            <span class="skill-badge featured">AWS</span>
+            <span class="skill-badge featured">React</span>
+            <span class="skill-badge featured">TypeScript</span>
+            <span class="skill-badge">JavaScript</span>
+            <span class="skill-badge">HTML5</span>
+            <span class="skill-badge">CSS3 / Sass</span>
+            <span class="skill-badge">Figma</span>
+            <span class="skill-badge">Git & GitHub</span>
+            <span class="skill-badge">Vitest / Jest</span>
+            <span class="skill-badge">Node.js</span>
+            <span class="skill-badge">GraphQL</span>
+            <span class="skill-badge">REST APIs</span>
+            <span class="skill-badge">Java</span>
+            <span class="skill-badge">C++</span>
+            <span class="skill-badge">Web Accessibility</span>
+        </div>
+    </div>
+</section>
+
+<!-- ===== TRAVEL ===== -->
+<section id="travel">
+    <div class="travel-inner">
+        <p class="section-label reveal">Adventures</p>
+        <h2 class="section-title reveal">Places on my radar</h2>
+        <p class="reveal" style="color: var(--text-muted); max-width: 460px; margin: 0 auto; line-height: 1.75; font-size: 1rem;">
+            The world is far too beautiful not to explore. A few destinations that have stolen my heart.
+        </p>
+        <div class="travel-grid">
+            <div class="travel-card reveal">
+                <span class="travel-flag">🇯🇵</span>
+                <div class="travel-location">Tokyo</div>
+                <div class="travel-country">Japan</div>
+                <p class="travel-note">Cherry blossoms, incredible food at every corner, and a city that somehow feels both ancient and futuristic all at once.</p>
+            </div>
+            <div class="travel-card reveal" style="transition-delay:0.1s">
+                <span class="travel-flag">🇮🇹</span>
+                <div class="travel-location">Amalfi Coast</div>
+                <div class="travel-country">Italy</div>
+                <p class="travel-note">Colorful cliffside villages, fresh pasta by the sea, and a blue so vivid it barely looks real.</p>
+            </div>
+            <div class="travel-card reveal" style="transition-delay:0.2s">
+                <span class="travel-flag">🇬🇷</span>
+                <div class="travel-location">Santorini</div>
+                <div class="travel-country">Greece</div>
+                <p class="travel-note">Iconic white-washed buildings, breathtaking sunsets over the caldera, and the most vivid blue you've ever seen.</p>
+            </div>
+            <div class="travel-card reveal" style="transition-delay:0.3s">
+                <span class="travel-flag">🇸🇬</span>
+                <div class="travel-location">Singapore</div>
+                <div class="travel-country">Singapore</div>
+                <p class="travel-note">A dazzling mix of cultures, stunning architecture, and some of the best food in all of Southeast Asia.</p>
+            </div>
+            <div class="travel-card reveal" style="transition-delay:0.4s">
+                <span class="travel-flag">🇮🇹</span>
+                <div class="travel-location">Rome</div>
+                <div class="travel-country">Italy</div>
+                <p class="travel-note">Ancient history around every corner, incredible food, and a city that somehow never loses its magic.</p>
+            </div>
+            <div class="travel-card reveal" style="transition-delay:0.5s">
+                <span class="travel-flag">🇰🇷</span>
+                <div class="travel-location">Seoul</div>
+                <div class="travel-country">South Korea</div>
+                <p class="travel-note">A vibrant city where ancient palaces sit alongside neon-lit streets, great food, and incredible energy.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== CONTACT ===== -->
+<section id="contact">
+    <div class="contact-inner">
+        <p class="section-label reveal">Get In Touch</p>
+        <h2 class="section-title reveal">Let's build something <em>wonderful</em></h2>
+        <p class="contact-body reveal">
+            Whether you have a project in mind, want to collaborate, or just want to swap travel recommendations — my inbox is always open.
+        </p>
+        <div class="social-links reveal">
+            <a href="mailto:amandasambawa@gmail.com" class="social-link">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                Email
+            </a>
+            <a href="https://github.com/amandasambawa" target="_blank" class="social-link">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+                GitHub
+            </a>
+            <a href="https://www.linkedin.com/in/amanda-sambawa/" target="_blank" class="social-link">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                LinkedIn
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+    <p>© 2026 Amanda Sambawa &nbsp;·&nbsp; Built with <span class="heart">♥</span></p>
+</footer>
+
+<script>
+    /* ===== SCROLL PROGRESS + NAV SHRINK ===== */
+    const progressBar = document.getElementById('progress-bar');
+    const navEl = document.getElementById('nav');
+
+    window.addEventListener('scroll', () => {
+        const scrolled = window.scrollY;
+        const total = document.documentElement.scrollHeight - window.innerHeight;
+        progressBar.style.width = (scrolled / total * 100) + '%';
+        navEl.classList.toggle('scrolled', scrolled > 60);
+    }, { passive: true });
+
+    /* ===== MOBILE NAV TOGGLE ===== */
+    document.getElementById('nav-toggle').addEventListener('click', () => {
+        document.getElementById('nav-links').classList.toggle('open');
+    });
+
+    /* ===== SMOOTH SCROLL ===== */
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+        link.addEventListener('click', (e) => {
+            const id = link.getAttribute('href');
+            if (id === '#') return;
+            const target = document.querySelector(id);
+            if (!target) return;
+            e.preventDefault();
+            const offset = target.getBoundingClientRect().top + window.scrollY - 80;
+            window.scrollTo({ top: offset, behavior: 'smooth' });
+            document.getElementById('nav-links').classList.remove('open');
+        });
+    });
+
+    /* ===== SCROLL REVEAL ===== */
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.12, rootMargin: '0px 0px -30px 0px' });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    async function loadHeroSprites() {
+        try {
+            const [fRes, pRes] = await Promise.all([
+                fetch('https://pokeapi.co/api/v2/pokemon/fidough'),
+                fetch('https://pokeapi.co/api/v2/pokemon/ponyta')
+            ]);
+            const f = await fRes.json();
+            const p = await pRes.json();
+
+            const fArt = f.sprites?.other?.['official-artwork']?.front_default || f.sprites?.front_default;
+            const pArt = p.sprites?.other?.['official-artwork']?.front_default || p.sprites?.front_default;
+
+            document.getElementById('hero-fidough').src = fArt;
+            document.getElementById('hero-ponyta').src  = pArt;
+        } catch (e) {
+            console.warn('Hero sprites could not load');
+        }
+    }
+
+    loadHeroSprites();
+</script>
+</body>
+</html>
